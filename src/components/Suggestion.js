@@ -8,15 +8,18 @@ const Suggestion = () => {
   return (
     <>
       <div
-        className={`max-h-[190px] md:max-h-full  flex flex-row md:flex-col justify-start gap-4 md:flex-[2] ml-2 md:ml-0 w-full max-w-[500px] border shadow-sm rounded-lg relative md:sticky md:top-14 pb-3  ${
-          !isOpen
-            ? "h-7 md:h-auto  overflow-hidden md:overflow-visible  pb-10 md:pd-0"
-            : ""
-        }`}
+        className={`max-h-[190px] md:max-h-full
+         flex  md:flex-col justify-start
+          gap-4 md:flex-[2]  w-full 
+          max-w-[500px]  shadow-sm border-2 
+          rounded-lg relative md:sticky md:top-14 pb-3 mx-auto
+          ${!isOpen ? "h-8 md:h-[50px]  overflow-hidden  pb-10 md:pd-0" : ""}`}
       >
         {isOpen && (
           <button
-            className="text-xl  text-gray-400 hover:text-black absolute  md:opacity-0 -bottom-1 left-[50%] translate-x-[-50%]"
+            className="text-xl  text-gray-400
+             hover:text-black absolute  md:opacity-1
+              -bottom-1 left-[50%] translate-x-[-50%]"
             onClick={() => setIsOpen(false)}
           >
             <FiChevronUp />
@@ -25,7 +28,10 @@ const Suggestion = () => {
 
         {!isOpen && (
           <button
-            className=" text-xl  text-gray-400 hover:text-black absolute md:opacity-0 bottom-0 left-[60%] "
+            className=" text-xl  text-gray-400
+             hover:text-black absolute md:opacity-1 
+             bottom-0 left-[65%] sm:left-[60%] 
+             md:left-[50%] md:translate-x-[-50%] "
             onClick={() => setIsOpen(true)}
           >
             <FiChevronDown />
@@ -37,7 +43,7 @@ const Suggestion = () => {
             Suggetions
           </h1>
           <div
-            className={`flex  md:flex-col md:p-4  md:gap-8 ${
+            className={`flex  md:flex-col md:p-4 px-4 md:gap-8 ${
               !isOpen ? "mt-10 md:mt-0 " : ""
             }`}
           >
@@ -45,11 +51,15 @@ const Suggestion = () => {
               <h1 className="font-semibold text-center text-gray-500">
                 People
               </h1>
-              <ul className=" overflow-y-hidden max-h-[120px] md:max-h-[400px] flex flex-col gap-2 items-start relative">
+              <ul
+                className=" overflow-y-hidden max-h-[120px] 
+              md:max-h-[250px] flex flex-col gap-2 items-start relative"
+              >
                 <li>
                   <Link
                     to="/"
-                    className="flex justify-start items-start  cursor-pointer hover:text-gray-600"
+                    className="flex justify-start items-start
+                      cursor-pointer hover:text-gray-600"
                   >
                     <img
                       src={img}
@@ -77,7 +87,8 @@ const Suggestion = () => {
                 <li>
                   <Link
                     to="/"
-                    className="flex items-center gap-3 cursor-pointer hover:text-gray-600"
+                    className="flex items-center gap-3 
+                    cursor-pointer hover:text-gray-600"
                   >
                     <img
                       src={img}
@@ -90,7 +101,8 @@ const Suggestion = () => {
                 <li>
                   <Link
                     to="/"
-                    className="flex items-center gap-3 cursor-pointer hover:text-gray-600"
+                    className="flex items-center gap-3 
+                    cursor-pointer hover:text-gray-600"
                   >
                     <img
                       src={img}
@@ -103,7 +115,8 @@ const Suggestion = () => {
                 <li>
                   <Link
                     to="/"
-                    className="flex items-center gap-3 cursor-pointer hover:text-gray-600"
+                    className="flex items-center gap-3 
+                    cursor-pointer hover:text-gray-600"
                   >
                     <img
                       src={img}
@@ -116,7 +129,8 @@ const Suggestion = () => {
                 <li>
                   <Link
                     to="/"
-                    className="flex items-center gap-3 cursor-pointer hover:text-gray-600"
+                    className="flex items-center gap-3 
+                    cursor-pointer hover:text-gray-600"
                   >
                     <img
                       src={img}
@@ -129,7 +143,8 @@ const Suggestion = () => {
                 <li>
                   <Link
                     to="/"
-                    className="flex items-center gap-3 cursor-pointer hover:text-gray-600"
+                    className="flex items-center gap-3 
+                    cursor-pointer hover:text-gray-600"
                   >
                     <img
                       src={img}
@@ -139,15 +154,27 @@ const Suggestion = () => {
                     <span>Elon Musk miah nolo dk</span>
                   </Link>
                 </li>
-                <button className="absolute text-right  w-auto right-6   -bottom-1 bg-[#f7f7f7] z-10  text-blue-400 hover:text-blue-700 text-sm rounded">
+                <button
+                  className="absolute text-right  
+                w-auto right-6   -bottom-1 bg-[#f7f7f7]
+                 z-10  text-blue-400 hover:text-blue-700
+                  text-sm rounded"
+                >
                   ... See more
                 </button>
               </ul>
             </div>
             <div
-              className={`flex-1 md:flex-[0] overflow-hidden max-h-[145px] md:max-h-[220px] flex flex-col items-center relative `}
+              className={`flex-1 md:flex-[0] overflow-hidden
+               max-h-[145px] md:max-h-[220px] flex flex-col
+               items-center relative `}
             >
-              <button className="absolute text-right -bottom-0 right-6 bg-[#f7f7f7] z-10  w-auto  text-blue-400 hover:text-blue-700 text-sm rounded">
+              <button
+                className="absolute text-right 
+              -bottom-0 right-6 bg-[#f7f7f7] z-10
+               w-auto  text-blue-400 hover:text-blue-700
+                text-sm rounded"
+              >
                 ... See more
               </button>
               <h1 className=" text-center font-semibold text-gray-500">

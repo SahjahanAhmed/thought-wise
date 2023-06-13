@@ -17,7 +17,8 @@ const SignIn = () => {
   return (
     <div className="w-full flex flex-col items-center justify-center">
       <h1 className="text-3xl mt-4">Sign in</h1>
-      <div className="w-full flex flex-col max-w-[400px] bg-white shadow rounded-lg mx-10 my-10 p-4">
+      <div className="w-full flex flex-col max-w-[400px]
+       bg-white shadow rounded-lg mx-10 my-10 p-4">
         <form className="sign-in flex flex-col gap-4">
           <div className="flex flex-col gap-4">
             <input
@@ -31,15 +32,20 @@ const SignIn = () => {
               className="border p-2 rounded-lg"
             />
           </div>
-          <button className="bg-blue-600 text-gray-200 p-2 rounded-lg hover:bg-blue-700 transition duration-150 font-semibold">
+          <button className="bg-blue-600
+           text-gray-200 p-2 rounded-lg hover:bg-blue-700
+            transition duration-150 font-semibold">
             Sign in
           </button>
         </form>
-        <div className="mt-4 flex items-center justify-center text-center relative before:border before:flex-[1] after:border after:flex-[1]">
+        <div className="mt-4 flex items-center justify-center text-center
+         relative before:border before:flex-[1] after:border after:flex-[1]">
           <span className="mx-4">OR</span>
         </div>
         <button
-          className="bg-cyan-600 text-gray-200 p-2 rounded-lg hover:bg-cyan-700 transition duration-150 flex items-center justify-center gap-2 mt-4 font-semibold"
+          className="bg-cyan-600 text-gray-200 p-2 rounded-lg
+           hover:bg-cyan-700 transition duration-150 flex
+            items-center justify-center gap-2 mt-4 font-semibold"
           onClick={signIn}
         >
           <FcGoogle className="bg-white rounded-full text-xl" /> Sign in with

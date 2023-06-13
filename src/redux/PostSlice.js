@@ -1,13 +1,19 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../config/firebase";
+
 const initialState = {
   posts: [],
 };
 
-export const fetchPosts = createAsyncThunk("posts/fetchPosts", () => {
-  return axios
-    .get("https://fakestoreapi.com/products/?limit=10")
-    .then((res) => res.data);
+export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
+  const data = await getDocs(collection(db, "posts"));
+  let finalPost = [];
+  const fData = data.docs.forEach((doc) =>
+    finalPost.push({ ...doc.data(), id: doc.id })
+  );
+  return finalPost;
 });
 
 export const postSlice = createSlice({
