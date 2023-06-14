@@ -17,7 +17,7 @@ const Post = (props) => {
       <div className="top">
         <div className="flex  text-sm gap-1 p-2">
           <img
-            src={post.user_photo ? post.userphoto : userImg}
+            src={post.userPhoto ? post.userPhoto : userImg}
             alt=""
             className="w-12 h-12 object-cover rounded-full 
             cursor-pointer border "
@@ -34,8 +34,8 @@ const Post = (props) => {
         </div>
       </div>
       <div className="bottom content px-4 mb-3 mt-1">
-        <span>{post?.postText.slice(0, 120)}</span>
-        {post?.postText.length > 120 ? (
+        <span>{post.postText?.slice(0, 120)}</span>
+        {post?.postText?.length > 120 ? (
           <button
             className="text-blue-500 hover:text-blue-700 
           transition duration-150"
@@ -46,13 +46,11 @@ const Post = (props) => {
           ""
         )}
         <div className="media">
-          {post?.image && (
-            <img
-              src={post?.image}
-              alt="photo"
-              className="py-2 md:p-10 w-full max-w-[500px] m-auto"
-            />
-          )}
+          <img
+            src={post.shareImage}
+            alt="photo"
+            className="py-2 md:p-10 w-full max-w-[500px] m-auto"
+          />
         </div>
       </div>
       <div className="footer engagements">
@@ -69,12 +67,12 @@ const Post = (props) => {
             </span>
           </div>
         </div>
-        <div className="border-t flex items-center  ">
+        <div className="border-t flex items-center ">
           <button
             className="flex items-center gap-1 flex-1 
            justify-center  py-3 mt-1 rounded-lg transition
             duration-150  font-semibold text-gray-800
-             hover:bg-gray-200"
+             hover:bg-gray-200 "
           >
             <FiThumbsUp className="" /> like
           </button>

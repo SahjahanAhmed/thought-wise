@@ -5,17 +5,30 @@ import { HiPhoto } from "react-icons/hi2";
 import img from "../media/images/SJ.jpg";
 import { FiChevronDown } from "react-icons/fi";
 import { MdVideoLibrary } from "react-icons/md";
-
+import { collection, serverTimestamp } from "firebase/firestore";
+import { auth, db } from "../config/firebase";
+import { addDoc } from "firebase/firestore";
+import { useAuthState } from "react-firebase-hooks/auth";
 const CreatePostModal = ({ setIsModal }) => {
+  const [user, loading] = useAuthState(auth);
   const [postText, setPostText] = useState("");
   const [postTo, setPostTo] = useState("anyone");
   const [shareImage, setShareImage] = useState("");
   const [shareVideo, setShareVideo] = useState("");
   const [isLongTextarea, setIsLongTextarea] = useState(false);
   const [isVideoLinkOpen, setIsVideoLinkOpen] = useState(false);
-
-  const handleCreatePost = async () => {};
-
+  const postCollection = collection(db, "posts");
+  const handleCreatePost = async () => {
+    await addDoc(postCollection, {
+      postText,
+      shareImage: shareImage ? URL.createObjectURL(shareImage) : "",
+      shareVideo,
+      postTo,
+      userPhoto: user.photoURL,
+      userName: user.displayName,
+      createdAt: serverTimestamp(),
+    });
+  };
   return (
     <div
       className=" h-screen w-screen 
