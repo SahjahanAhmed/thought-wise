@@ -5,26 +5,69 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchPosts } from "../redux/PostSlice";
 import { FiPlus } from "react-icons/fi";
 import CreatePostModal from "../components/CreatePostModal";
-
+import {
+  collection,
+  onSnapshot,
+  orderBy,
+  query,
+  where,
+} from "firebase/firestore";
+import { db } from "../config/firebase";
+import loadingImage from "../media/images/loading.svg";
 const Home = () => {
+  const [progress, setProgress] = useState(false);
   const [isModal, setIsModal] = useState(false);
-  const { posts } = useSelector((store) => store.posts);
+  const [allposts, setAllPosts] = useState([]);
+  const [publicPosts, setPublicPosts] = useState([]);
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(fetchPosts());
   }, []);
+
+  useEffect(() => {
+    const postsRef = collection(db, "posts");
+    const q = query(postsRef, orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      let posts = [];
+      snapshot.docs.forEach((doc) => {
+        posts.push({ ...doc.data(), id: doc.id });
+      });
+      setAllPosts(posts);
+    });
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    if (allposts.length <= 0) return;
+    const postsRef = collection(db, "posts");
+    const q = query(
+      postsRef,
+      orderBy("createdAt", "desc"),
+      where("postTo", "==", "anyone")
+    );
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      let posts = [];
+      snapshot.docs.forEach((doc) => {
+        posts.push({ ...doc.data(), id: doc.id });
+      });
+      setPublicPosts(posts);
+    });
+    return unsubscribe;
+  }, [allposts]);
   return (
     <div
       className="max-w-[1000px] mx-auto w-full md:w-[80%] 
     flex flex-col   md:items-start md:flex-row md:gap-6"
     >
-      {isModal && <CreatePostModal setIsModal={setIsModal} />}
+      {isModal && (
+        <CreatePostModal setIsModal={setIsModal} setProgress={setProgress} />
+      )}
       <Suggestion />
 
       <div
-        className="xs:flex-[5] ml-2 xs:-ml-0 md:border-2 
+        className="xs:flex-[5] ml-2 xs:-ml-0 md:mt-0.5 md:border-2 
       md:shadow-sm rounded-lg flex flex-col items-center'
-       overflow-x-hidden"
+       overflow-x-hidden "
       >
         <div className="flex flex-col items-center">
           <button
@@ -38,8 +81,13 @@ const Home = () => {
             <FiPlus className="text-2xl" /> Share a Thought
           </button>
         </div>
+
+        {progress && (
+          <img src={loadingImage} alt="loading image" className="h-10 mb-2.5" />
+        )}
+
         <div className="flex flex-col">
-          {posts?.map((post) => {
+          {publicPosts?.map((post) => {
             return <Post post={post} key={post.id} />;
           })}
         </div>

@@ -9,6 +9,9 @@ import { store } from "./redux/store";
 import { Provider } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "./config/firebase";
+import ProtectedRoutes from "./ProtectedRoutes";
+import { useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
 
 const App = () => {
   return (
@@ -16,8 +19,10 @@ const App = () => {
       <div className="App">
         <Navbar />
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route element={<ProtectedRoutes />}>
+            <Route path="/" element={<Home />} exact />
+            <Route path="/profile" element={<Profile />} />
+          </Route>
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

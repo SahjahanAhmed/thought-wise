@@ -12,7 +12,7 @@ const Suggestion = () => {
          flex  md:flex-col justify-start
           gap-4 md:flex-[2]  w-full 
           max-w-[500px]  shadow-sm border-2 
-          rounded-lg relative md:sticky md:top-14 pb-3 mx-auto
+          rounded-lg relative md:sticky md:top-[58px] pb-3 mx-auto
           ${!isOpen ? "h-8 md:h-[50px]  overflow-hidden  pb-10 md:pd-0" : ""}`}
       >
         {isOpen && (
