@@ -29,26 +29,24 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { motion } from "framer-motion";
 import ting from "../media/audio/ting.mp3";
 import Comments from "./Comments";
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 const Post = (props) => {
   const [seeMore, setSeeMore] = useState(false);
-  const [user, loading] = useAuthState(auth);
-  const [likes, setLikes] = useState([]);
+
   const [comments, setComments] = useState([]);
   const [commentBox, setCommentBox] = useState(false);
   const [isEditorbarOpen, setIsEditorbarOpen] = useState(false);
   const { post, access, setIsEditSectionOpen, setEditPostId, setGetPost } =
     props;
-
-  useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "likes"), (snapshot) => {
-      let likes = [];
-      snapshot.docs.forEach((doc) => {
-        likes.push({ ...doc.data(), id: doc.id });
-      });
-      setLikes(likes.filter((like) => like.postId == post.id));
-    });
-    return unsubscribe;
-  }, []);
+  // like
+  const { likes } = useSelector((store) => store.likes);
+  const like = likes.filter((like) => like?.postId == post?.id)[0];
+  // console.log(like);
+  // user
+  const [USER, loading] = useAuthState(auth);
+  const { users } = useSelector((store) => store.users);
+  const user = users.filter((user) => user?.uid == USER?.uid)[0];
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -70,20 +68,20 @@ const Post = (props) => {
     await deleteDoc(postRef);
   };
   const handleLikePost = () => {
-    const likeSound = new Audio(ting);
-    const likeRef = doc(db, "likes", likes[0].id);
-    const didILike = likes[0]?.likers?.filter((liker) => liker == user.uid);
+    const likeound = new Audio(ting);
+    const likeRef = doc(db, "likes", like.id);
+    const didILike = like?.likers?.filter((liker) => liker == user?.uid);
 
     updateDoc(likeRef, {
-      likes: didILike.length == 0 ? likes[0].likes + 1 : likes[0].likes - 1,
+      likes: didILike.length == 0 ? like.likes + 1 : like.likes - 1,
       likers:
         didILike.length == 0
-          ? [...likes[0]?.likers, user.uid]
-          : likes[0]?.likers?.filter((liker) => liker != didILike[0]),
+          ? [...like?.likers, user.uid]
+          : like?.likers?.filter((liker) => liker != didILike[0]),
     });
-    if (didILike.length == 0) likeSound.play();
+    if (didILike.length == 0) likeound.play();
   };
-  const iLiked = likes[0]?.likers.filter((liker) => liker == user.uid);
+  const iLiked = like?.likers.filter((liker) => liker == user.uid);
   return (
     <div
       className=" rounded-lg p-1 shadow-md w-[90%]
@@ -91,20 +89,23 @@ const Post = (props) => {
     >
       <div className="top flex justify-between">
         <div className="flex  text-sm gap-1 p-2">
-          <img
-            src={post.userPhoto ? post.userPhoto : userImg}
-            alt="user"
-            className="w-12 h-12 object-cover rounded-full 
-  cursor-pointer border "
-          />
+          <Link to={`/profile/${post?.userId}`}>
+            <img
+              src={post.userPhoto ? post.userPhoto : userImg}
+              alt="user"
+              className="w-12 h-12 object-cover rounded-full 
+            cursor-pointer border "
+            />
+          </Link>
 
           <div className="flex flex-col ml-2  my-auto">
-            <span
+            <Link
+              to={`/profile/${post?.userId}`}
               className="name-in-post font-semibold 
             font-ubuntu cursor-pointer"
             >
-              {post.userName}
-            </span>
+              {post?.userName}
+            </Link>
             <span className="text-[12px] text-gray-700">
               {post.createdAt?.toDate().toLocaleDateString()}
             </span>
@@ -186,7 +187,7 @@ const Post = (props) => {
             className="flex items-center gap-2 
            text-blue-600 hover:text-blue-800 ml-2 mb-1 text-sm cursor-pointer"
           >
-            <FiThumbsUp className="" /> {likes[0]?.likes}
+            <FiThumbsUp className="" /> {like?.likes}
           </span>
           <div className="mr-2 ">
             <span

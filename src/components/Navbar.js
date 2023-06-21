@@ -22,9 +22,13 @@ const Navbar = ({ setSearchModal, searchModal }) => {
   const [navItemsOpen, setNavItemsOpen] = useState(false);
   const [smallScreen, setSmallScreen] = useState(false);
   const [isSignOutButtonOpen, setIsSignOutButtonOpen] = useState(false);
-  const [user, loading] = useAuthState(auth);
   const { pathname } = useLocation();
   const navigate = useNavigate();
+
+  // user
+  const [USER, loading] = useAuthState(auth);
+  const { users } = useSelector((store) => store.users);
+  const user = users.filter((user) => user?.uid == USER?.uid)[0];
 
   window.addEventListener("resize", () => {
     if (window.innerWidth < 631) {
@@ -152,7 +156,7 @@ const Navbar = ({ setSearchModal, searchModal }) => {
             >
               Sign out
             </button>
-            <Link to={"/profile"} className="">
+            <Link to={`/profile/${user?.uid}`} className="">
               <img
                 src={user?.photoURL}
                 alt=""

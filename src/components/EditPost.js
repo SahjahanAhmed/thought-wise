@@ -9,9 +9,9 @@ import { auth, db, storage } from "../config/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { addDoc, collection, doc, getDoc, updateDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { useSelector } from "react-redux";
 
 const EditPost = ({ setIsEditSectionOpen, editPostId, getPost }) => {
-  const [user, loading] = useAuthState(auth);
   const [postText, setPostText] = useState(getPost.postText);
   const [postTo, setPostTo] = useState(getPost.postTo);
   const [shareImage, setShareImage] = useState(getPost.shareImage);
@@ -19,6 +19,11 @@ const EditPost = ({ setIsEditSectionOpen, editPostId, getPost }) => {
   const [isLongTextarea, setIsLongTextarea] = useState(false);
   const [isVideoLinkOpen, setIsVideoLinkOpen] = useState(false);
   const postCollection = collection(db, "posts");
+
+  // user
+  const [USER, loading] = useAuthState(auth);
+  const { users } = useSelector((store) => store.users);
+  const user = users.filter((user) => user?.uid == USER?.uid)[0];
 
   const handleEditPost = () => {
     const postRef = doc(db, "posts", editPostId);

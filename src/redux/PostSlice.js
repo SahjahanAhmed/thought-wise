@@ -1,9 +1,4 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-import { collection, getDocs, onSnapshot } from "firebase/firestore";
-import { db } from "../config/firebase";
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
 
 const initialState = {
   posts: [],

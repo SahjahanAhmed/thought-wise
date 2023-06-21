@@ -9,11 +9,16 @@ import {
 } from "firebase/firestore";
 import { auth, db } from "../config/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { useSelector } from "react-redux";
 
 const Comments = ({ comments, postId, post }) => {
-  const [user, loading] = useAuthState(auth);
   const [commentText, setCommentText] = useState("");
   const [allComments, setAllComments] = useState(false);
+
+  // user
+  const [USER, loading] = useAuthState(auth);
+  const { users } = useSelector((store) => store.users);
+  const user = users.filter((user) => user?.uid == USER?.uid)[0];
 
   const handleComment = () => {
     if (!commentText) return;

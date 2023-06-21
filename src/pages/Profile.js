@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { MdVerified } from "react-icons/md";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import cover from "../media/images/cover-photo.png";
 import profile from "../media/images/SJ.jpg";
 import Post from "../components/Post";
@@ -24,13 +24,17 @@ const Profile = ({ searchModal, setSearchModal }) => {
   const [isEditSectionOpen, setIsEditSectionOpen] = useState(false);
   const [editPostId, setEditPostId] = useState("");
   const [getPost, setGetPost] = useState(null);
-  const [user, loading] = useAuthState(auth);
   const [userPosts, setUserPosts] = useState([]);
   const [allPosts, setAllPosts] = useState([]);
   const dispatch = useDispatch();
   // useEffect(() => {
   // dispatch(fetchPosts());
   // }, []);
+  const { uid } = useParams();
+  // user
+  const [USER, loading] = useAuthState(auth);
+  const { users } = useSelector((store) => store.users);
+  const user = users.filter((user) => user?.uid == uid)[0];
 
   const postsRef = collection(db, "posts");
   useEffect(() => {
@@ -50,7 +54,7 @@ const Profile = ({ searchModal, setSearchModal }) => {
     const q = query(
       postsRef,
       orderBy("createdAt", "desc"),
-      where("userId", "==", user.uid)
+      where("userId", "==", uid)
     );
     const unsubscribe = onSnapshot(q, (snapshot) => {
       let posts = [];
@@ -60,7 +64,7 @@ const Profile = ({ searchModal, setSearchModal }) => {
       setUserPosts(posts);
     });
     return unsubscribe;
-  }, [allPosts]);
+  }, [allPosts, uid]);
 
   return (
     <>

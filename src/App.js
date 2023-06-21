@@ -1,4 +1,4 @@
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate, useParams } from "react-router-dom";
 import Home from "./pages/Home";
 import Navbar from "./components/Navbar";
 import Profile from "./pages/Profile";
@@ -13,9 +13,18 @@ import ProtectedRoutes from "./ProtectedRoutes";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { fetchPosts } from "./redux/PostSlice";
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  onSnapshot,
+  orderBy,
+  query,
+} from "firebase/firestore";
+import { fetchUsers } from "./redux/UsersSlice";
+import { fetchLikes } from "./redux/LikesSlice";
 
 const App = () => {
+  const { uid } = useParams();
   const [searchModal, setSearchModal] = useState(false);
   const [allPosts, setAllPosts] = useState([]);
   const dispatch = useDispatch();
@@ -30,8 +39,28 @@ const App = () => {
       dispatch(fetchPosts(posts));
     });
     return unsubscribe;
-  }, []);
+  }, [dispatch]);
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "users"), (snapshot) => {
+      let users = [];
+      snapshot.docs.forEach((doc) => {
+        users.push({ ...doc.data(), id: doc.id });
+      });
+      dispatch(fetchUsers(users));
+    });
+    return unsubscribe;
+  }, [dispatch]);
 
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "likes"), (snapshot) => {
+      let likes = [];
+      snapshot.docs.forEach((doc) => {
+        likes.push({ ...doc.data(), id: doc.id });
+      });
+      dispatch(fetchLikes(likes));
+    });
+    return unsubscribe;
+  }, [dispatch]);
   return (
     <div className="App">
       <Navbar setSearchModal={setSearchModal} searchModal={searchModal} />
@@ -45,7 +74,7 @@ const App = () => {
             exact
           />
           <Route
-            path="/profile"
+            path="/profile/:uid"
             element={
               <Profile
                 searchModal={searchModal}

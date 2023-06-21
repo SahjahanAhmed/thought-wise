@@ -10,8 +10,8 @@ import { auth, db, storage } from "../config/firebase";
 import { addDoc } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { useSelector } from "react-redux";
 const CreatePostModal = ({ setIsModal, setProgress }) => {
-  const [user, loading] = useAuthState(auth);
   const [postText, setPostText] = useState("");
   const [postTo, setPostTo] = useState("anyone");
   const [shareImage, setShareImage] = useState("");
@@ -19,6 +19,11 @@ const CreatePostModal = ({ setIsModal, setProgress }) => {
   const [isLongTextarea, setIsLongTextarea] = useState(false);
   const [isVideoLinkOpen, setIsVideoLinkOpen] = useState(false);
   const postCollection = collection(db, "posts");
+
+  // user
+  const [USER, loading] = useAuthState(auth);
+  const { users } = useSelector((store) => store.users);
+  const user = users.filter((user) => user?.uid == USER?.uid)[0];
 
   const handleCreatePost = async () => {
     const storageRef = ref(storage, `images/${shareImage.name}`);

@@ -1,23 +1,49 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { Link, useNavigate } from "react-router-dom";
 
-import { auth } from "../config/firebase";
+import { auth, db } from "../config/firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { addDoc, collection, onSnapshot } from "firebase/firestore";
 const SignIn = () => {
+  const [allUsers, setAllUsers] = useState([]);
   const navigate = useNavigate();
   const provider = new GoogleAuthProvider();
+
+  useEffect(() => {
+    const usersRef = collection(db, "users");
+
+    const unsubscribe = onSnapshot(usersRef, (snapshot) => {
+      let users = [];
+      snapshot.docs.forEach((doc) => {
+        users.push({ ...doc.data(), id: doc.id });
+      });
+      setAllUsers(users);
+    });
+    return unsubscribe;
+  }, []);
+  // sign in
   const signIn = async () => {
     try {
-      const unsub = await signInWithPopup(auth, provider);
-      navigate("/");
-      localStorage.setItem("isAuth", true);
+      const unsub = await signInWithPopup(auth, provider).then((USER) => {
+        const amIHere = allUsers.filter((user) => user?.uid == USER?.user?.uid);
+        navigate("/");
+        localStorage.setItem("isAuth", true);
+        if (amIHere.length == 0 && USER.user) {
+          addDoc(collection(db, "users"), {
+            displayName: USER.user.displayName,
+            uid: USER.user.uid,
+            photoURL: USER.user.photoURL,
+            email: USER.user.email,
+            emailVerified: USER.user.emailVerified,
+          });
+        }
+      });
       return unsub;
     } catch (error) {
       console.log(error);
     }
   };
-
   return (
     <div className="w-full flex flex-col items-center justify-center">
       <h1 className="text-3xl mt-4">Sign in</h1>

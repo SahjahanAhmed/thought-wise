@@ -12,9 +12,10 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { db } from "../config/firebase";
+import { auth, db } from "../config/firebase";
 import loadingImage from "../media/images/loading.svg";
 import EditPost from "../components/EditPost";
+import { useAuthState } from "react-firebase-hooks/auth";
 const Home = ({ searchModal, setSearchModal }) => {
   const [isEditSectionOpen, setIsEditSectionOpen] = useState(false);
   const [editPostId, setEditPostId] = useState("");
@@ -27,6 +28,11 @@ const Home = ({ searchModal, setSearchModal }) => {
   // useEffect(() => {
   // dispatch(fetchPosts());
   // }, []);
+
+  // user
+  const [USER, loading] = useAuthState(auth);
+  const { users } = useSelector((store) => store.users);
+  const user = users.filter((user) => user?.uid == USER?.uid)[0];
 
   useEffect(() => {
     const postsRef = collection(db, "posts");
