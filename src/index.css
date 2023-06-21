@@ -28,3 +28,6 @@ body {
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
+.active {
+  color: rgb(13, 133, 232);
+}

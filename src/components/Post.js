@@ -1,4 +1,9 @@
 import React, { useEffect, useState } from "react";
+import {
+  FacebookIcon,
+  FacebookShareButton,
+  FacebookShareCount,
+} from "react-share";
 import img from "../../src/media/images/sj-smiling-stareing.jpg";
 import userImg from "../media/images/user.jpg";
 import {
@@ -14,15 +19,22 @@ import {
   deleteDoc,
   doc,
   onSnapshot,
+  orderBy,
+  query,
   updateDoc,
+  where,
 } from "firebase/firestore";
 import { auth, db } from "../config/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { motion } from "framer-motion";
 import ting from "../media/audio/ting.mp3";
+import Comments from "./Comments";
 const Post = (props) => {
+  const [seeMore, setSeeMore] = useState(false);
   const [user, loading] = useAuthState(auth);
   const [likes, setLikes] = useState([]);
+  const [comments, setComments] = useState([]);
+  const [commentBox, setCommentBox] = useState(false);
   const [isEditorbarOpen, setIsEditorbarOpen] = useState(false);
   const { post, access, setIsEditSectionOpen, setEditPostId, setGetPost } =
     props;
@@ -38,7 +50,22 @@ const Post = (props) => {
     return unsubscribe;
   }, []);
 
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      query(collection(db, "comments"), orderBy("createdAt", "desc")),
+      (snapshot) => {
+        let comments = [];
+        snapshot.docs.forEach((doc) => {
+          comments.push({ ...doc.data(), id: doc.id });
+        });
+        setComments(comments.filter((comment) => comment));
+      }
+    );
+    return unsubscribe;
+  }, []);
+
   const handleDeletePost = async () => {
+    setIsEditorbarOpen(false);
     const postRef = doc(db, "posts", post.id);
     await deleteDoc(postRef);
   };
@@ -57,7 +84,6 @@ const Post = (props) => {
     if (didILike.length == 0) likeSound.play();
   };
   const iLiked = likes[0]?.likers.filter((liker) => liker == user.uid);
-  console.log(iLiked);
   return (
     <div
       className=" rounded-lg p-1 shadow-md w-[90%]
@@ -77,14 +103,14 @@ const Post = (props) => {
               className="name-in-post font-semibold 
             font-ubuntu cursor-pointer"
             >
-              Sahjahan Ahmed
+              {post.userName}
             </span>
             <span className="text-[12px] text-gray-700">
               {post.createdAt?.toDate().toLocaleDateString()}
             </span>
           </div>
         </div>
-        {access && (
+        {access && post?.userId == user?.uid && (
           <div className={`access flex   gap-1 p-2 relative`}>
             <button
               className="text-xl h-6 w-6 text-center 
@@ -103,6 +129,7 @@ const Post = (props) => {
                     setIsEditSectionOpen(true);
                     setEditPostId(post.id);
                     setGetPost(post);
+                    setIsEditorbarOpen(false);
                   }}
                 >
                   Edit
@@ -119,14 +146,15 @@ const Post = (props) => {
           </div>
         )}
       </div>
-      <div className="bottom content px-4 mb-3 mt-1">
-        <span>{post.postText?.slice(0, 120)}</span>
+      <div className="bottom  content px-4 mb-3 mt-1 overflow-x-hidden ">
+        <p>{post.postText?.slice(0, seeMore ? 1200 : 120)}</p>
         {post?.postText?.length > 120 ? (
           <button
             className="text-blue-500 hover:text-blue-700 
           transition duration-150"
+            onClick={() => setSeeMore(!seeMore)}
           >
-            &nbsp; ...see more
+            &nbsp; {seeMore ? "...see less" : "...see more"}
           </button>
         ) : (
           ""
@@ -161,8 +189,11 @@ const Post = (props) => {
             <FiThumbsUp className="" /> {likes[0]?.likes}
           </span>
           <div className="mr-2 ">
-            <span className="cursor-pointer text-sm text-gray-600 hover:text-gray-800">
-              0 Comments
+            <span
+              className="cursor-pointer text-sm text-gray-600 hover:text-gray-800"
+              onClick={() => setCommentBox(true)}
+            >
+              {post?.comment} Comments
             </span>
           </div>
         </div>
@@ -191,6 +222,7 @@ const Post = (props) => {
             className="flex items-center flex-1 gap-1
            justify-center py-3 mt-1 rounded-lg transition
            duration-150 font-semibold text-gray-800 hover:bg-gray-200"
+            onClick={() => setCommentBox(!commentBox)}
           >
             <FiMessageCircle className="" /> Comment
           </button>
@@ -200,6 +232,13 @@ const Post = (props) => {
           duration-150 font-semibold text-gray-800 hover:bg-gray-200"
           >
             <FiShare2 className="" /> Share
+            {/* <FacebookShareButton
+              hashtag="#React"
+              quote="this is me sj"
+              url="youtube.com"
+            >
+              <FacebookIcon round={true}></FacebookIcon>
+          </FacebookShareButton> */}
           </button>
           <button
             className="flex items-center flex-1 gap-1 
@@ -209,6 +248,9 @@ const Post = (props) => {
             <FiRepeat className="" /> Repost
           </button>
         </div>
+        {commentBox && (
+          <Comments comments={comments} postId={post.id} post={post} />
+        )}
       </div>
     </div>
   );

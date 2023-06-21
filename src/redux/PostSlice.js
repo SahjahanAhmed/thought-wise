@@ -8,16 +8,12 @@ import { useDispatch } from "react-redux";
 const initialState = {
   posts: [],
 };
-export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
-  // const postsRef = collection(db, "posts");
-  // let posts = [];
-  // const data = await getDocs(postsRef);
-  //
-  // data.docs.forEach((doc) => {
-  // posts.push({ ...doc.data(), id: doc.id });
-  // });
-  // return posts;
-});
+export const fetchPosts = createAsyncThunk(
+  "posts/fetchPosts",
+  async (posts) => {
+    return posts;
+  }
+);
 
 export const postSlice = createSlice({
   name: "posts",

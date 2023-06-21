@@ -45,6 +45,7 @@ const CreatePostModal = ({ setIsModal, setProgress }) => {
             userPhoto: user.photoURL,
             userName: user.displayName,
             createdAt: serverTimestamp(),
+            comment: 0,
           });
           post.then((id) => {
             addDoc(collection(db, "likes"), {
