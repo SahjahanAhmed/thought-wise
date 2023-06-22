@@ -31,3 +31,6 @@ body {
 .active {
   color: rgb(13, 133, 232);
 }
+* {
+  /* outline: 2px solid red; */
+}

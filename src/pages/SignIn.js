@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { Link, useNavigate } from "react-router-dom";
 
-import { auth, db } from "../config/firebase";
+import { auth, db, storage } from "../config/firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { addDoc, collection, onSnapshot } from "firebase/firestore";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 const SignIn = () => {
   const [allUsers, setAllUsers] = useState([]);
   const navigate = useNavigate();
@@ -36,6 +37,13 @@ const SignIn = () => {
             photoURL: USER.user.photoURL,
             email: USER.user.email,
             emailVerified: USER.user.emailVerified,
+            follower: 0,
+            following: 0,
+          });
+          addDoc(collection(db, "follow"), {
+            userId: USER.user.uid,
+            followers: [],
+            following: [],
           });
         }
       });

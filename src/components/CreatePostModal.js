@@ -77,13 +77,13 @@ const CreatePostModal = ({ setIsModal, setProgress }) => {
   return (
     <div
       className=" h-screen w-screen 
-    fixed left-0 top-0 right-0 bottom-0 z-[999]
-    flex justify-center p-2 sm:p-4
+    fixed left-0 top-0 right-0 bottom-0 z-[9999]
+    flex  items-center justify-center  p-2 sm:p-4
      bg-[rgba(0,0,0,.8)] animate-fade"
     >
       <div
         className="modal md:w-full w-[90%] max-w-[600px] h-full max-h-[560px] 
-      border shadow-md p-4  rounded-lg bg-white flex flex-col gap-4 relative overflow-x-hidden"
+      border  shadow-md p-4  rounded-lg bg-white flex flex-col gap-4 relative overflow-x-hidden"
       >
         <div className="top flex justify-between ">
           <div>

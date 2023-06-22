@@ -6,6 +6,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../config/firebase";
 import { useSelector } from "react-redux";
 import Post from "./Post";
+import ReactPlayer from "react-player";
 const Suggestion = () => {
   const [suggestedPost, setSuggestedPost] = useState("");
   const [isOpen, setIsOpen] = useState(true);
@@ -51,7 +52,7 @@ const Suggestion = () => {
           rounded-lg relative md:sticky md:top-[58px] pb-3 px-2 mx-auto
           ${
             !isOpen ? "h-8 md:h-[50px]  overflow-hidden  pb-10 md:pd-0" : ""
-          }        `}
+          }      ${suggestedPost && "mb-2"}  `}
       >
         {isOpen && (
           <button
@@ -94,31 +95,30 @@ const Suggestion = () => {
                 {userWithmostPost &&
                   userWithmostPost.slice(0, 3).map((user) => {
                     return (
-                      <li>
-                        <Link
-                          to={`/profile/${user?.uid}`}
-                          className="flex justify-start items-start
-       cursor-pointer hover:text-gray-600"
-                        >
-                          <img
-                            src={user?.photoURL}
-                            alt="people"
-                            className="h-8 w-8 rounded-full object-cover"
-                          />
-                          <span className="ml-1">{user?.displayName}</span>
-                        </Link>
-                      </li>
+                      <Link
+                        to={`/profile/${user?.uid}`}
+                        className="flex justify-start items-start
+       cursor-pointer hover:text-gray-600 hover:bg-gray-200 rounded-lg p-1"
+                      >
+                        <img
+                          src={user?.photoURL}
+                          alt="people"
+                          className="h-8 w-8 rounded-full object-cover"
+                        />
+                        <span className="ml-1">{user?.displayName}</span>
+                      </Link>
                     );
                   })}
 
-                <button
+                <Link
+                  to={"/suggested/people"}
                   className="absolute text-right  
                 w-auto right-6   -bottom-1 bg-[#f7f7f7]
                  z-10  text-blue-400 hover:text-blue-700
                   text-sm rounded"
                 >
                   ... See more
-                </button>
+                </Link>
               </ul>
             </div>
             <div
@@ -126,14 +126,15 @@ const Suggestion = () => {
                max-h-[145px] md:max-h-[220px] flex flex-col
                items-center relative `}
             >
-              <button
+              <Link
+                to={"/suggested/thoughts"}
                 className="absolute text-right 
               -bottom-0 right-6 bg-[#f7f7f7] z-10
                w-auto  text-blue-400 hover:text-blue-700
                 text-sm rounded"
               >
                 ... See more
-              </button>
+              </Link>
               <h1 className="text-start m-auto  font-semibold text-gray-500">
                 Thoughts
               </h1>
@@ -141,22 +142,22 @@ const Suggestion = () => {
                 {mostLiked &&
                   mostLiked.slice(0, 3).map((post) => {
                     return (
-                      <li>
-                        <Link
-                          className="hover:text-gray-500 flex relative "
-                          onClick={() => setSuggestedPost(post)}
-                        >
-                          <img
-                            src={post.userPhoto}
-                            alt="user photo"
-                            className="h-6 w-6 rounded-full object-cover absolute"
-                          />
-
-                          <span className="ml-7">
-                            {post.postText.slice(0, 40) + "  ..."}
-                          </span>
-                        </Link>
-                      </li>
+                      <Link
+                        className="hover:text-gray-500 p-1 rounded-lg hover:bg-gray-200 flex relative "
+                        onClick={() =>
+                          setSuggestedPost(suggestedPost ? "" : post)
+                        }
+                      >
+                        <img
+                          src={post?.userPhoto}
+                          alt="user photo"
+                          className="h-6 w-6 rounded-full object-cover absolute"
+                        />
+                        <span className="ml-7 flex">
+                          {post.postText.slice(0, 40)}{" "}
+                          {post.postText.length > 40 && "..."}
+                        </span>
+                      </Link>
                     );
                   })}
               </ul>
@@ -164,6 +165,16 @@ const Suggestion = () => {
           </div>
         </div>
       </div>
+      <span>
+        {" "}
+        {suggestedPost && (
+          <Post
+            post={suggestedPost}
+            suggestedPost={suggestedPost}
+            setSuggestedPost={setSuggestedPost}
+          />
+        )}
+      </span>
     </>
   );
 };

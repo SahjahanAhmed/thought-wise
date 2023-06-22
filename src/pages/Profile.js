@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { MdVerified } from "react-icons/md";
+import { AiOutlinePlus, AiOutlineCheckCircle } from "react-icons/ai";
 import { Link, useParams } from "react-router-dom";
 import cover from "../media/images/cover-photo.png";
 import profile from "../media/images/SJ.jpg";
@@ -14,6 +15,7 @@ import {
   onSnapshot,
   orderBy,
   query,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import { auth, db } from "../config/firebase";
@@ -26,16 +28,15 @@ const Profile = ({ searchModal, setSearchModal }) => {
   const [getPost, setGetPost] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
   const [allPosts, setAllPosts] = useState([]);
-  const dispatch = useDispatch();
-  // useEffect(() => {
-  // dispatch(fetchPosts());
-  // }, []);
+  const [followList, setFollowList] = useState([]);
+
   const { uid } = useParams();
   // user
   const [USER, loading] = useAuthState(auth);
   const { users } = useSelector((store) => store.users);
   const user = users.filter((user) => user?.uid == uid)[0];
 
+  const activeUser = users.filter((user) => user?.uid == USER?.uid)[0];
   const postsRef = collection(db, "posts");
   useEffect(() => {
     const unsubscribe = onSnapshot(postsRef, (snapshot) => {
@@ -65,7 +66,60 @@ const Profile = ({ searchModal, setSearchModal }) => {
     });
     return unsubscribe;
   }, [allPosts, uid]);
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "follow"), (snapshot) => {
+      let followList = [];
+      snapshot.docs.forEach((doc) => {
+        followList.push({ ...doc.data(), id: doc.id });
+      });
+      setFollowList(followList);
+    });
+    return unsubscribe;
+  }, []);
 
+  const userFollowList = followList.filter(
+    (followList) => followList.userId == user?.uid
+  )[0];
+  const activeUserFollowList = followList.filter(
+    (followList) => followList.userId == activeUser?.uid
+  )[0];
+  const didIFollow = userFollowList?.followers.filter(
+    (follower) => follower == activeUser?.uid
+  )[0];
+  // handle follow
+  const handleFollow = async () => {
+    await updateDoc(doc(db, "follow", userFollowList.id), {
+      followers: [...userFollowList.followers, activeUser?.uid],
+    });
+    await updateDoc(doc(db, "follow", activeUserFollowList.id), {
+      following: [...activeUserFollowList.following, user?.uid],
+    });
+    await updateDoc(doc(db, "users", user?.id), {
+      follower: user?.follower + 1,
+    });
+    await updateDoc(doc(db, "users", activeUser?.id), {
+      following: activeUser?.following + 1,
+    });
+  };
+  // handle follow
+  const handleUnfollow = async () => {
+    await updateDoc(doc(db, "follow", userFollowList.id), {
+      followers: userFollowList?.followers.filter(
+        (follwer) => follwer != activeUser?.uid
+      ),
+    });
+    await updateDoc(doc(db, "follow", activeUserFollowList.id), {
+      following: activeUserFollowList?.following.filter(
+        (following) => following != user?.uid
+      ),
+    });
+    await updateDoc(doc(db, "users", user?.id), {
+      follower: user?.follower - 1,
+    });
+    await updateDoc(doc(db, "users", activeUser?.id), {
+      following: activeUser?.following - 1,
+    });
+  };
   return (
     <>
       {searchModal && (
@@ -99,26 +153,60 @@ const Profile = ({ searchModal, setSearchModal }) => {
                 />
               </Link>
               <div
-                className="info w-[80%] flex flex-col items-center
-              justify-center md:items-start"
+                className="info w-[80%] flex flex-col md:flex-row md:justify-evenly items-center
+              justify-center md:items-start "
               >
-                <p className="text-2xl ">{user?.displayName}</p>
-                <p>{user?.email}</p>
-                {user?.emailVerified ? (
-                  <p className="text-blue-600 flex items-center ">
-                    {" "}
-                    verified <MdVerified />
-                  </p>
-                ) : (
-                  <p>Not verified</p>
-                )}
+                <div className="flex flex-col items-center mb-4 md:mb-0">
+                  <p className="text-2xl ">{user?.displayName}</p>
+                  <p>{user?.email}</p>
+                  {user?.emailVerified ? (
+                    <p className="text-blue-600 flex items-center gap-1 ">
+                      {" "}
+                      verified <MdVerified />
+                    </p>
+                  ) : (
+                    <p>Not verified</p>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-2 ">
+                  {activeUser?.uid != user?.uid &&
+                    (didIFollow ? (
+                      <button
+                        onClick={handleUnfollow}
+                        className="text font-semibold flex items-center justify-center gap-1 border-shadow
+                     bg-blue-500 py-2 px-3 rounded-full text-white
+                      hover:bg-blue-600 transition duration-150"
+                      >
+                        Following
+                        <AiOutlineCheckCircle className="mt-1" />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleFollow}
+                        className="text font-semibold flex items-center justify-center gap-1 border-shadow
+                     bg-blue-500 py-2 px-3 rounded-full text-white hover:bg-blue-600
+                      transition duration-150"
+                      >
+                        Follow <AiOutlinePlus />
+                      </button>
+                    ))}
+                  <div className="flex items-center gap-4">
+                    <Link className="font-semibold text-gray-800 hover:text-black transition duration-150">
+                      Followers: {user?.follower}
+                    </Link>
+                    <Link className="font-semibold text-gray-800 hover:text-black transition duration-150">
+                      Following: {user?.following}
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
         <div className="bottom mt-10">
           <h1 className="text-2xl mb-4 md:mb-0 text-center md:text-start">
-            Your posts
+            {USER?.uid === user?.uid ? "Your posts" : "Posts"}
           </h1>
 
           {userPosts.length > 0 ? (

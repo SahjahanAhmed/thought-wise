@@ -24,16 +24,11 @@ const Home = ({ searchModal, setSearchModal }) => {
   const [isModal, setIsModal] = useState(false);
   const [allposts, setAllPosts] = useState([]);
   const [publicPosts, setPublicPosts] = useState([]);
-  const dispatch = useDispatch();
-  // useEffect(() => {
-  // dispatch(fetchPosts());
-  // }, []);
 
   // user
   const [USER, loading] = useAuthState(auth);
   const { users } = useSelector((store) => store.users);
   const user = users.filter((user) => user?.uid == USER?.uid)[0];
-
   useEffect(() => {
     const postsRef = collection(db, "posts");
     const q = query(postsRef, orderBy("createdAt", "desc"));
@@ -72,16 +67,13 @@ const Home = ({ searchModal, setSearchModal }) => {
         ></div>
       )}
       <div
-        className={`  max-w-[1000px] mx-auto w-full md:w-[80%] 
-    flex flex-col   md:items-start md:flex-row md:gap-6 ${
-      searchModal && "overflow-hidden "
-    }`}
+        className={`  max-w-[1000px]   mx-auto w-full md:w-[80%] 
+        flex flex-col   md:items-start md:flex-row md:gap-6`}
       >
         {isModal && (
           <CreatePostModal setIsModal={setIsModal} setProgress={setProgress} />
         )}
         <Suggestion />
-
         <div
           className="xs:flex-[5] ml-2 xs:-ml-0 md:mt-0.5 md:border-2 
       md:shadow-sm rounded-lg flex flex-col items-center'
@@ -96,7 +88,8 @@ const Home = ({ searchModal, setSearchModal }) => {
                duration-150 font-semibold flex items-center gap-2"
               onClick={() => setIsModal(true)}
             >
-              <FiPlus className="text-2xl" /> infinite scroll
+              <FiPlus className="text-2xl" /> Infinite, Followers, advance
+              search
             </button>
           </div>
 

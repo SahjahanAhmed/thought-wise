@@ -57,7 +57,7 @@ const EditPost = ({ setIsEditSectionOpen, editPostId, getPost }) => {
   return (
     <div
       className=" h-screen w-screen 
-  fixed left-0 top-0 right-0 bottom-0 z-[999]
+  fixed left-0 top-0 right-0 bottom-0 z-[9999]
   flex justify-center p-2 sm:p-4
    bg-[rgba(0,0,0,.8)] animate-fade"
     >

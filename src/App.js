@@ -11,7 +11,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "./config/firebase";
 import ProtectedRoutes from "./ProtectedRoutes";
 import { useEffect, useState } from "react";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { fetchPosts } from "./redux/PostSlice";
 import {
   collection,
@@ -22,15 +22,17 @@ import {
 } from "firebase/firestore";
 import { fetchUsers } from "./redux/UsersSlice";
 import { fetchLikes } from "./redux/LikesSlice";
+import People from "./pages/People";
+import Suggested from "./pages/Suggested";
 
 const App = () => {
-  const { uid } = useParams();
   const [searchModal, setSearchModal] = useState(false);
-  const [allPosts, setAllPosts] = useState([]);
   const dispatch = useDispatch();
+
   useEffect(() => {
     const postsRef = collection(db, "posts");
     const q = query(postsRef, orderBy("createdAt", "desc"));
+
     const unsubscribe = onSnapshot(q, (snapshot) => {
       let posts = [];
       snapshot.docs.forEach((doc) => {
@@ -39,7 +41,8 @@ const App = () => {
       dispatch(fetchPosts(posts));
     });
     return unsubscribe;
-  }, [dispatch]);
+  }, []);
+
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "users"), (snapshot) => {
       let users = [];
@@ -49,7 +52,7 @@ const App = () => {
       dispatch(fetchUsers(users));
     });
     return unsubscribe;
-  }, [dispatch]);
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "likes"), (snapshot) => {
@@ -60,7 +63,7 @@ const App = () => {
       dispatch(fetchLikes(likes));
     });
     return unsubscribe;
-  }, [dispatch]);
+  }, []);
   return (
     <div className="App">
       <Navbar setSearchModal={setSearchModal} searchModal={searchModal} />
@@ -82,6 +85,26 @@ const App = () => {
               />
             }
           />
+          <Route
+            path="/people"
+            element={
+              <People
+                searchModal={searchModal}
+                setSearchModal={setSearchModal}
+              />
+            }
+          />
+          <Route
+            path="/suggested"
+            element={
+              <Suggested
+                searchModal={searchModal}
+                setSearchModal={setSearchModal}
+              />
+            }
+          >
+            <Route path="/suggested/:suggestion" />
+          </Route>
         </Route>
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { AiFillHome } from "react-icons/ai";
 import { CgProfile } from "react-icons/cg";
+import { AiOutlineUserAdd } from "react-icons/ai";
+import { AiOutlineAppstoreAdd } from "react-icons/ai";
 import { FaBars } from "react-icons/fa";
 import logo from "../../src/media/images/logo.png";
 import profilePic from "../../src/media/images/sj-smiling-stareing.jpg";
@@ -29,7 +31,6 @@ const Navbar = ({ setSearchModal, searchModal }) => {
   const [USER, loading] = useAuthState(auth);
   const { users } = useSelector((store) => store.users);
   const user = users.filter((user) => user?.uid == USER?.uid)[0];
-
   window.addEventListener("resize", () => {
     if (window.innerWidth < 631) {
       setSmallScreen(true);
@@ -118,7 +119,7 @@ const Navbar = ({ setSearchModal, searchModal }) => {
           }}
         >
           <button
-            className={`relative hover:after:content-['Home'] hover:after:text-[13px] hover:after:absolute hover:after:top-[40px] hover:after:shadow-xl hover:after:bg-gray-500 hover:after:text-white hover:after:rounded-lg hover:after:left-[50%] hover:after:translate-x-[-50%] hover:after:px-2 hover:after:py-1.5 hover:after:z-[100]`}
+            className={`relative text-gray-700 hover:after:content-['Home'] hover:after:text-[13px] hover:after:absolute hover:after:top-[40px] hover:after:shadow-xl hover:after:bg-gray-500 hover:after:text-white hover:after:rounded-lg hover:after:left-[50%] hover:after:translate-x-[-50%] hover:after:px-2 hover:after:py-1.5 hover:after:z-[100]`}
             onClick={() => setNavItemsOpen(false)}
           >
             <NavLink to={"/"}>
@@ -127,11 +128,41 @@ const Navbar = ({ setSearchModal, searchModal }) => {
           </button>
 
           <button
-            className={`relative hover:after:content-['Profile'] hover:after:text-[13px] hover:after:absolute hover:after:top-[40px] hover:after:shadow-xl hover:after:bg-gray-500 hover:after:text-white hover:after:rounded-lg hover:after:left-[50%] hover:after:translate-x-[-50%] hover:after:px-2 hover:after:py-1.5 hover:after:z-[100]`}
+            className={`relative text-gray-700 hover:after:content-['Profile'] hover:after:text-[13px] 
+            hover:after:absolute hover:after:top-[40px] hover:after:shadow-xl
+             hover:after:bg-gray-500 hover:after:text-white hover:after:rounded-lg
+              hover:after:left-[50%] hover:after:translate-x-[-50%] hover:after:px-2
+              hover:after:py-1.5 hover:after:z-[100]`}
             onClick={() => setNavItemsOpen(false)}
           >
-            <NavLink to={"/profile"}>
+            <NavLink to={`/profile/${user?.uid}`}>
               <CgProfile className="text-3xl" />
+            </NavLink>
+          </button>
+          <button
+            className={`relative text-gray-700 hover:after:content-['People'] hover:after:text-[13px] 
+   hover:after:absolute hover:after:top-[40px] hover:after:shadow-xl
+    hover:after:bg-gray-500 hover:after:text-white hover:after:rounded-lg
+     hover:after:left-[50%] hover:after:translate-x-[-50%] hover:after:px-2
+     hover:after:py-1.5 hover:after:z-[100]`}
+            onClick={() => setNavItemsOpen(false)}
+          >
+            <NavLink to={"/people"}>
+              <AiOutlineUserAdd className="text-3xl" />
+            </NavLink>
+          </button>
+          <button
+            className={`relative text-gray-700 hover:after:content-['Suggeted'] hover:after:text-[13px] 
+   hover:after:absolute hover:after:top-[40px] hover:after:shadow-xl
+    hover:after:bg-gray-500 hover:after:text-white hover:after:rounded-lg
+     hover:after:left-[50%] hover:after:translate-x-[-50%] hover:after:px-2
+     hover:after:py-1.5 hover:after:z-[100]  ${
+       pathname.includes("suggested") && "active"
+     }`}
+            onClick={() => setNavItemsOpen(false)}
+          >
+            <NavLink to={"/suggested/people"}>
+              <AiOutlineAppstoreAdd className="text-3xl" />
             </NavLink>
           </button>
         </div>
@@ -159,7 +190,7 @@ const Navbar = ({ setSearchModal, searchModal }) => {
             <Link to={`/profile/${user?.uid}`} className="">
               <img
                 src={user?.photoURL}
-                alt=""
+                alt={"user photo"}
                 className=" min-w-10 min-h-10 max-w-10 max-h-10 object-cover 
                 rounded-full  cursor-default"
               />
