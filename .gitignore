@@ -4,6 +4,7 @@
 # firebase
 /.firebase
 .firebaserc
+firebase.json
 
 
 

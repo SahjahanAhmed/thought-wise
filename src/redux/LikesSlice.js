@@ -1,4 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../config/firebase";
 const initialState = {
   likes: [],
 };
@@ -21,6 +23,14 @@ export const likesSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(fetchLikes.fulfilled, (state, action) => {
       state.likes = action.payload;
+      console.log("likes fetched");
+      console.log("likes" + action.payload);
+    });
+    builder.addCase(fetchLikes.pending, (state, action) => {
+      console.log("fetching likes...");
+    });
+    builder.addCase(fetchLikes.rejected, (state, action) => {
+      console.log("error occurs on while fetching post");
     });
   },
 });

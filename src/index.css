@@ -31,6 +31,17 @@ body {
 .active {
   color: rgb(13, 133, 232);
 }
-* {
-  /* outline: 2px solid red; */
+
+@media screen and (max-width: 370px) {
+  .buttons-div > button {
+    font-size: 80%;
+  }
+
+  .post-comments {
+    font-size: 80%;
+  }
+
+  .post-likes {
+    font-size: 80%;
+  }
 }

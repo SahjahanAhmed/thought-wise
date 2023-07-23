@@ -3,6 +3,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import Post from "./Post";
 import EditPost from "./EditPost";
+import defaultProfilePhoto from "../media/images/user.jpg";
 
 const SearchBox = ({ setSearchModal, posts, searchTerms }) => {
   const [isEditSectionOpen, setIsEditSectionOpen] = useState(false);
@@ -35,7 +36,7 @@ const SearchBox = ({ setSearchModal, posts, searchTerms }) => {
                     onClick={() => setPostLarge(postLarge ? "" : post?.id)}
                   >
                     <img
-                      src={post?.userPhoto}
+                      src={post?.userPhoto || defaultProfilePhoto}
                       alt="user photo"
                       className="w-6 h-6 rounded-full mt-1"
                     />

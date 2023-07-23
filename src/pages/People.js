@@ -4,7 +4,7 @@ import SinglePeople from "../components/SinglePeople";
 
 const People = ({ searchModal, setSearchModal }) => {
   const { users } = useSelector((store) => store.users);
-  // const mixedUsers =
+
   return (
     <>
       {searchModal && (

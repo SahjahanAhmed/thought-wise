@@ -5,21 +5,12 @@ import Profile from "./pages/Profile";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import ForgotPassword from "./pages/ForgotPassword";
-import { store } from "./redux/store";
-import { useDispatch, useSelector } from "react-redux";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, db } from "./config/firebase";
+import { useDispatch } from "react-redux";
+import { db } from "./config/firebase";
 import ProtectedRoutes from "./ProtectedRoutes";
 import { useEffect, useState } from "react";
-import { onAuthStateChanged, signOut } from "firebase/auth";
 import { fetchPosts } from "./redux/PostSlice";
-import {
-  collection,
-  getDocs,
-  onSnapshot,
-  orderBy,
-  query,
-} from "firebase/firestore";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { fetchUsers } from "./redux/UsersSlice";
 import { fetchLikes } from "./redux/LikesSlice";
 import People from "./pages/People";
@@ -29,6 +20,31 @@ const App = () => {
   const [searchModal, setSearchModal] = useState(false);
   const dispatch = useDispatch();
 
+  // fetching users
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "users"), (snapshot) => {
+      let users = [];
+      snapshot.docs.forEach((doc) => {
+        users.push({ ...doc.data(), id: doc.id });
+      });
+      dispatch(fetchUsers(users));
+    });
+    return unsubscribe;
+  }, [dispatch]);
+
+  // fetching likes and likers
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "likes"), (snapshot) => {
+      let likes = [];
+      snapshot.docs.forEach((doc) => {
+        likes.push({ ...doc.data(), id: doc.id });
+      });
+      dispatch(fetchLikes(likes));
+    });
+    return unsubscribe;
+  }, [dispatch]);
+
+  // fetching posts
   useEffect(() => {
     const postsRef = collection(db, "posts");
     const q = query(postsRef, orderBy("createdAt", "desc"));
@@ -41,29 +57,8 @@ const App = () => {
       dispatch(fetchPosts(posts));
     });
     return unsubscribe;
-  }, []);
+  }, [dispatch]);
 
-  useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "users"), (snapshot) => {
-      let users = [];
-      snapshot.docs.forEach((doc) => {
-        users.push({ ...doc.data(), id: doc.id });
-      });
-      dispatch(fetchUsers(users));
-    });
-    return unsubscribe;
-  }, []);
-
-  useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "likes"), (snapshot) => {
-      let likes = [];
-      snapshot.docs.forEach((doc) => {
-        likes.push({ ...doc.data(), id: doc.id });
-      });
-      dispatch(fetchLikes(likes));
-    });
-    return unsubscribe;
-  }, []);
   return (
     <div className="App">
       <Navbar setSearchModal={setSearchModal} searchModal={searchModal} />

@@ -1,4 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import { db } from "../config/firebase";
 
 const initialState = {
   posts: [],
@@ -6,7 +8,14 @@ const initialState = {
 export const fetchPosts = createAsyncThunk(
   "posts/fetchPosts",
   async (posts) => {
-    return posts;
+    const serializedPosts = posts.map((post) => ({
+      ...post,
+      createdAt: {
+        seconds: post?.createdAt?.seconds,
+        nanoseconds: post?.createdAt?.nanoseconds,
+      },
+    }));
+    return serializedPosts;
   }
 );
 
@@ -21,6 +30,14 @@ export const postSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(fetchPosts.fulfilled, (state, action) => {
       state.posts = action.payload;
+      console.log("posts fetched");
+      console.log("posts" + action.payload);
+    });
+    builder.addCase(fetchPosts.pending, (state, action) => {
+      console.log("fetchong posts...");
+    });
+    builder.addCase(fetchPosts.rejected, (state, action) => {
+      console.log("error occurs while fetching posts");
     });
   },
 });

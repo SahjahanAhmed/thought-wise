@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Suggestion from "../components/Suggestion";
 import Post from "../components/Post";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchPosts } from "../redux/PostSlice";
+import { useSelector } from "react-redux";
 import { FiPlus } from "react-icons/fi";
 import CreatePostModal from "../components/CreatePostModal";
 import {
@@ -88,8 +87,7 @@ const Home = ({ searchModal, setSearchModal }) => {
                duration-150 font-semibold flex items-center gap-2"
               onClick={() => setIsModal(true)}
             >
-              <FiPlus className="text-2xl" /> Infinite, Followers, advance
-              search
+              <FiPlus className="text-2xl" /> Share a thought
             </button>
           </div>
 

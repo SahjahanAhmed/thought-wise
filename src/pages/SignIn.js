@@ -1,15 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { Link, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-import { auth, db, storage } from "../config/firebase";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth, db } from "../config/firebase";
+import {
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+} from "firebase/auth";
 import { addDoc, collection, onSnapshot } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { alertUser } from "./SignUp";
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+
 const SignIn = () => {
   const [allUsers, setAllUsers] = useState([]);
+  const [password, setpassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
   const navigate = useNavigate();
   const provider = new GoogleAuthProvider();
+  const { users } = useSelector((store) => store.users);
 
   useEffect(() => {
     const usersRef = collection(db, "users");
@@ -23,35 +35,71 @@ const SignIn = () => {
     });
     return unsubscribe;
   }, []);
+
+  //handle signin with email and pass
+  const signinWithEmailAndPAssword = async (e) => {
+    e.preventDefault();
+    if (email === "" || password === "") return;
+
+    // check if email already have an account with it
+    const existingAccount = await users?.filter((user) => user.email === email);
+    if (existingAccount.length === 0) {
+      alertUser("This email don't have an account with it!");
+      return;
+    }
+
+    if (existingAccount && password.length < 6) {
+      alertUser("Too short password, put at least 6 letters");
+      return;
+    }
+
+    if (existingAccount && existingAccount[0]?.password !== password) {
+      alertUser("Wrong password!");
+      return;
+    }
+
+    await signInWithEmailAndPassword(auth, email, password).then((user) => {
+      navigate("/");
+      localStorage.setItem("isAuth", true);
+      window.location.reload();
+    });
+  };
+
   // sign in
   const signIn = async () => {
-    try {
-      const unsub = await signInWithPopup(auth, provider).then((USER) => {
-        const amIHere = allUsers.filter((user) => user?.uid == USER?.user?.uid);
-        navigate("/");
-        localStorage.setItem("isAuth", true);
-        if (amIHere.length == 0 && USER.user) {
-          addDoc(collection(db, "users"), {
-            displayName: USER.user.displayName,
-            uid: USER.user.uid,
-            photoURL: USER.user.photoURL,
-            email: USER.user.email,
-            emailVerified: USER.user.emailVerified,
-            follower: 0,
-            following: 0,
-          });
-          addDoc(collection(db, "follow"), {
-            userId: USER.user.uid,
-            followers: [],
-            following: [],
-          });
-        }
+    const USER = await signInWithPopup(auth, provider);
+    const amIHere = await allUsers.filter(
+      (user) => user?.uid == USER?.user?.uid
+    );
+    if (amIHere.length === 0 && USER?.user) {
+      addDoc(collection(db, "users"), {
+        displayName: USER.user.displayName,
+        uid: USER.user.uid,
+        profilePhoto: USER.user.photoURL,
+        coverPhoto: null,
+        email: USER.user.email,
+        emailVerified: USER.user.emailVerified,
+        follower: 0,
+        following: 0,
+        description: "Hello, welcome to my profile",
+      }).then((data) => {
+        addDoc(collection(db, "follow"), {
+          userId: USER.user.uid,
+          followers: [],
+          following: [],
+        }).then((data) => {
+          navigate("/");
+          localStorage.setItem("isAuth", true);
+          window.location.reload();
+        });
       });
-      return unsub;
-    } catch (error) {
-      console.log(error);
+    } else {
+      navigate("/");
+      localStorage.setItem("isAuth", true);
+      window.location.reload();
     }
   };
+
   return (
     <div className="w-full flex flex-col items-center justify-center">
       <h1 className="text-3xl mt-4">Sign in</h1>
@@ -59,20 +107,37 @@ const SignIn = () => {
         className="w-full flex flex-col max-w-[400px]
        bg-white shadow rounded-lg mx-10 my-10 p-4"
       >
-        <form className="sign-in flex flex-col gap-4">
+        <form
+          className="sign-in flex flex-col gap-4"
+          onSubmit={signinWithEmailAndPAssword}
+        >
           <div className="flex flex-col gap-4">
             <input
-              type="text"
+              type="email"
               placeholder="Email"
               className="border p-2 rounded-lg"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
-            <input
-              type="password"
-              placeholder="password"
-              className="border p-2 rounded-lg"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="password"
+                className="border p-2 rounded-lg w-full"
+                value={password}
+                onChange={(e) => setpassword(e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute cursor-pointer flex items-center justify-center top-[50%] translate-y-[-50%] right-4 text-xl"
+              >
+                {!showPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
+              </button>
+            </div>
           </div>
           <button
+            type="submit"
             className="bg-blue-600
            text-gray-200 p-2 rounded-lg hover:bg-blue-700
             transition duration-150 font-semibold"

@@ -26,6 +26,14 @@ export const usersSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(fetchUsers.fulfilled, (state, action) => {
       state.users = action.payload;
+      console.log("users fetched");
+      console.log("users" + action.payload);
+    });
+    builder.addCase(fetchUsers.pending, (state, action) => {
+      console.log("fetching users...");
+    });
+    builder.addCase(fetchUsers.rejected, (state, action) => {
+      console.log("something went wrong with users slice");
     });
   },
 });

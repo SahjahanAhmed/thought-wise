@@ -24,10 +24,10 @@ const Comments = ({ comments, postId, post }) => {
     if (!commentText) return;
     addDoc(collection(db, "comments"), {
       commentText,
-      userId: user.uid,
+      userId: user?.uid,
       postId,
-      userName: user.displayName,
-      userPhoto: user.photoURL,
+      userName: user?.displayName,
+      userPhoto: user?.profilePhoto,
       createdAt: serverTimestamp(),
     }).then(() => {
       updateDoc(doc(db, "posts", postId), {
@@ -36,6 +36,7 @@ const Comments = ({ comments, postId, post }) => {
     });
     setCommentText("");
   };
+
   const postComment = comments.filter((comment) => comment?.postId == postId);
   return (
     <div className="flex flex-col gap-4 border-t pt-2">

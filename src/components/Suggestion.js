@@ -1,25 +1,23 @@
 import React, { useEffect, useState } from "react";
-import img from "../../src/media/images/sj-smiling-stareing.jpg";
 import { FiChevronUp, FiChevronDown } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../config/firebase";
 import { useSelector } from "react-redux";
 import Post from "./Post";
-import ReactPlayer from "react-player";
+import defaultProfilePhoto from "../media/images/user.jpg";
+
 const Suggestion = () => {
   const [suggestedPost, setSuggestedPost] = useState("");
   const [isOpen, setIsOpen] = useState(true);
   const { likes } = useSelector((store) => store.likes);
   const { posts } = useSelector((store) => store.posts);
 
-  // const post = posts.filter((post) => post?.id == suggestedPost);
-
   // users;
   const [USER, loading] = useAuthState(auth);
   const { users } = useSelector((store) => store.users);
 
-  let userWithPosts = users.map((user) => {
+  let userWithPosts = users?.map((user) => {
     return {
       ...user,
       userPosts: posts.filter((post) => post.userId == user.uid),
@@ -32,7 +30,7 @@ const Suggestion = () => {
     })
     .reverse();
 
-  let mostLiked = posts.map((post) => ({
+  let mostLiked = posts?.map((post) => ({
     ...post,
     likes: likes.filter((like) => like.postId == post.id),
   }));
@@ -93,15 +91,16 @@ const Suggestion = () => {
               md:max-h-[250px] flex flex-col gap-2 items-start relative"
               >
                 {userWithmostPost &&
-                  userWithmostPost.slice(0, 3).map((user) => {
+                  userWithmostPost?.slice(0, 3).map((user) => {
                     return (
                       <Link
+                        key={user?.id}
                         to={`/profile/${user?.uid}`}
                         className="flex justify-start items-start
        cursor-pointer hover:text-gray-600 hover:bg-gray-200 rounded-lg p-1"
                       >
                         <img
-                          src={user?.photoURL}
+                          src={user?.profilePhoto || defaultProfilePhoto}
                           alt="people"
                           className="h-8 w-8 rounded-full object-cover"
                         />
@@ -140,22 +139,30 @@ const Suggestion = () => {
               </h1>
               <ul className="w-[80%] md:w-full overflow-hidden flex flex-col items-start gap-2">
                 {mostLiked &&
-                  mostLiked.slice(0, 3).map((post) => {
+                  mostLiked?.slice(0, 3).map((post) => {
                     return (
                       <Link
-                        className="hover:text-gray-500 p-1 rounded-lg hover:bg-gray-200 flex relative "
+                        key={post?.id}
+                        className="hover:text-gray-500 p-1 rounded-lg hover:bg-gray-200 flex relative items-center justify-start min-h-[30px] w-full text-sm"
                         onClick={() =>
                           setSuggestedPost(suggestedPost ? "" : post)
                         }
                       >
                         <img
-                          src={post?.userPhoto}
+                          src={post?.userPhoto || defaultProfilePhoto}
                           alt="user photo"
                           className="h-6 w-6 rounded-full object-cover absolute"
                         />
                         <span className="ml-7 flex">
-                          {post.postText.slice(0, 40)}{" "}
-                          {post.postText.length > 40 && "..."}
+                          {post?.postText?.slice(0, 40)}{" "}
+                          {post?.postText.length > 40 && "..."}
+                          {post?.postText.length < 10 && post?.shareImage && (
+                            <img
+                              src={post?.shareImage}
+                              alt="photo"
+                              className="rounded h-[30px] absolute right-0 top-50% translate-y-[-50%] "
+                            />
+                          )}
                         </span>
                       </Link>
                     );

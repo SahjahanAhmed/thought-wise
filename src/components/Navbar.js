@@ -5,14 +5,8 @@ import { AiOutlineUserAdd } from "react-icons/ai";
 import { AiOutlineAppstoreAdd } from "react-icons/ai";
 import { FaBars } from "react-icons/fa";
 import logo from "../../src/media/images/logo.png";
-import profilePic from "../../src/media/images/sj-smiling-stareing.jpg";
-import {
-  Link,
-  NavLink,
-  useLocation,
-  useNavigate,
-  useParams,
-} from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import defaultProfilePhoto from "../media/images/user.jpg";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../config/firebase";
 import { signOut } from "firebase/auth";
@@ -24,13 +18,19 @@ const Navbar = ({ setSearchModal, searchModal }) => {
   const [navItemsOpen, setNavItemsOpen] = useState(false);
   const [smallScreen, setSmallScreen] = useState(false);
   const [isSignOutButtonOpen, setIsSignOutButtonOpen] = useState(false);
+  const [user, setUser] = useState("");
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
   // user
   const [USER, loading] = useAuthState(auth);
   const { users } = useSelector((store) => store.users);
-  const user = users.filter((user) => user?.uid == USER?.uid)[0];
+
+  useEffect(() => {
+    const user = users.filter((user) => user?.uid === USER?.uid)[0];
+    setUser(user);
+  }, [user, users]);
+
   window.addEventListener("resize", () => {
     if (window.innerWidth < 631) {
       setSmallScreen(true);
@@ -90,12 +90,6 @@ const Navbar = ({ setSearchModal, searchModal }) => {
               setSearchModal(true);
             }}
           />
-          {/* <button
-            className="border rounded-lg
-           text-gray-500 p-1 ml-2 hover:bg-gray-100"
-          >
-            Search
-          </button>*/}
         </div>
         {smallScreen && (
           <button
@@ -176,7 +170,17 @@ const Navbar = ({ setSearchModal, searchModal }) => {
             }}
           >
             <button
-              className={`absolute top-full text-sm w-16 -right-2 border bg-gray-500 text-white py-1 rounded-lg hover:bg-gray-600 transition duration-150 ${
+              className={`absolute top-full text-sm w-16 -right-2  bg-gray-500 text-white py-3 rounded-lg hover:bg-gray-600 hover:scale-105 transition duration-150 ${
+                isSignOutButtonOpen ? "visible" : "hidden"
+              }`}
+              onClick={() => {
+                navigate(`/Profile/${user?.uid}`);
+              }}
+            >
+              Profile
+            </button>
+            <button
+              className={`absolute top-[80px] text-sm w-16 -right-2  bg-gray-500 text-white py-3 rounded-lg hover:bg-gray-600 transition hover:scale-105 duration-150 ${
                 isSignOutButtonOpen ? "visible" : "hidden"
               }`}
               onClick={() => {
@@ -187,12 +191,13 @@ const Navbar = ({ setSearchModal, searchModal }) => {
             >
               Sign out
             </button>
-            <Link to={`/profile/${user?.uid}`} className="">
+
+            <Link to={`/profile/${user?.uid}`}>
               <img
-                src={user?.photoURL}
+                src={user?.profilePhoto || defaultProfilePhoto}
                 alt={"user photo"}
-                className=" min-w-10 min-h-10 max-w-10 max-h-10 object-cover 
-                rounded-full  cursor-default"
+                className=" h-10 w-10 object-cover 
+                rounded-full  cursor-pointer"
               />
             </Link>
           </div>

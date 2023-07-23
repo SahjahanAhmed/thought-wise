@@ -5,8 +5,9 @@ import {
   FacebookShareCount,
 } from "react-share";
 import { GrClose } from "react-icons/gr";
-import img from "../../src/media/images/sj-smiling-stareing.jpg";
 import userImg from "../media/images/user.jpg";
+import moment from "moment";
+import { motion } from "framer-motion";
 import {
   FiThumbsUp,
   FiMessageCircle,
@@ -23,11 +24,9 @@ import {
   orderBy,
   query,
   updateDoc,
-  where,
 } from "firebase/firestore";
 import { auth, db } from "../config/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { motion } from "framer-motion";
 import ting from "../media/audio/ting.mp3";
 import Comments from "./Comments";
 import { useSelector } from "react-redux";
@@ -47,10 +46,16 @@ const Post = (props) => {
     suggestedPost,
     setSuggestedPost,
   } = props;
+
+  // fromat date
+  const formattedDate = post?.createdAt
+    ? moment.unix(post.createdAt.seconds).fromNow()
+    : "Invalid Date";
+
   // like
   const { likes } = useSelector((store) => store.likes);
   const like = likes.filter((like) => like?.postId == post?.id)[0];
-  // console.log(like);
+
   // user
   const [USER, loading] = useAuthState(auth);
   const { users } = useSelector((store) => store.users);
@@ -89,6 +94,7 @@ const Post = (props) => {
     });
     if (didILike.length == 0) likeound.play();
   };
+
   const iLiked = like?.likers.filter((liker) => liker == user?.uid);
   return (
     <>
@@ -118,9 +124,7 @@ const Post = (props) => {
               >
                 {post?.userName}
               </Link>
-              <span className="text-[12px] text-gray-700">
-                {post.createdAt?.toDate().toLocaleDateString()}
-              </span>
+              <span className="text-[12px] text-gray-700">{formattedDate}</span>
             </div>
           </div>
           {access && post?.userId == user?.uid && (
@@ -204,21 +208,21 @@ const Post = (props) => {
         <div className="footer engagements">
           <div className="flex justify-between">
             <span
-              className="flex items-center gap-2 
+              className="post-likes flex items-center gap-2 
            text-blue-600 hover:text-blue-800 ml-2 mb-1 text-sm cursor-pointer"
             >
               <FiThumbsUp className="" /> {like?.likes}
             </span>
             <div className="mr-2 ">
               <span
-                className="cursor-pointer text-sm text-gray-600 hover:text-gray-800"
+                className="post-comments cursor-pointer text-sm text-gray-600 hover:text-gray-800"
                 onClick={() => setCommentBox(true)}
               >
                 {post?.comment} Comments
               </span>
             </div>
           </div>
-          <div className="border-t flex items-center ">
+          <div className="buttons-div border-t flex items-center ">
             <motion.button
               className={`flex items-center gap-1 flex-1 
            justify-center  py-3 mt-1 rounded-lg 
@@ -227,7 +231,7 @@ const Post = (props) => {
                iLiked?.length == 1 ? "  scale-105 scale-x-100 " : ""
              }`}
               onClick={handleLikePost}
-              whileTap={{ scale: 2 }}
+              whileTap={{ scale: 1.2 }}
               style={{
                 letterSpacing: iLiked?.length == 1 ? "1px" : "normal",
               }}
@@ -239,6 +243,7 @@ const Post = (props) => {
                 like
               </span>
             </motion.button>
+
             <button
               className="flex items-center flex-1 gap-1
            justify-center py-3 mt-1 rounded-lg transition
@@ -247,20 +252,15 @@ const Post = (props) => {
             >
               <FiMessageCircle className="" /> Comment
             </button>
+
             <button
               className="flex items-center flex-1 gap-1 
           justify-center py-3 mt-1 rounded-lg transition
           duration-150 font-semibold text-gray-800 hover:bg-gray-200"
             >
               <FiShare2 className="" /> Share
-              {/* <FacebookShareButton
-              hashtag="#React"
-              quote="this is me sj"
-              url="youtube.com"
-            >
-              <FacebookIcon round={true}></FacebookIcon>
-          </FacebookShareButton> */}
             </button>
+
             <button
               className="flex items-center flex-1 gap-1 
           justify-center py-3 mt-1 rounded-lg transition duration-150

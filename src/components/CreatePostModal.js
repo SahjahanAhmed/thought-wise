@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import ReactPlayer from "react-player";
 import { GrClose } from "react-icons/gr";
 import { HiPhoto } from "react-icons/hi2";
-import img from "../media/images/SJ.jpg";
 import { FiChevronDown } from "react-icons/fi";
 import { MdVideoLibrary } from "react-icons/md";
 import { collection, serverTimestamp } from "firebase/firestore";
@@ -11,6 +10,8 @@ import { addDoc } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { useSelector } from "react-redux";
+import defaultProfilePhoto from "../media/images/user.jpg";
+
 const CreatePostModal = ({ setIsModal, setProgress }) => {
   const [postText, setPostText] = useState("");
   const [postTo, setPostTo] = useState("anyone");
@@ -23,7 +24,7 @@ const CreatePostModal = ({ setIsModal, setProgress }) => {
   // user
   const [USER, loading] = useAuthState(auth);
   const { users } = useSelector((store) => store.users);
-  const user = users.filter((user) => user?.uid == USER?.uid)[0];
+  const user = users.filter((user) => user?.uid === USER?.uid)[0];
 
   const handleCreatePost = async () => {
     const storageRef = ref(storage, `images/${shareImage.name}`);
@@ -39,27 +40,31 @@ const CreatePostModal = ({ setIsModal, setProgress }) => {
       (error) => console.log(error),
       async () => {
         setProgress(false);
-        await getDownloadURL(uploadImage.snapshot.ref).then((url) => {
-          const post = addDoc(postCollection, {
-            shareImage: shareImage == "" ? "" : url,
-            shareVideo,
-            postText,
-            postTo,
-            userEmail: user.email,
-            userId: user.uid,
-            userPhoto: user.photoURL,
-            userName: user.displayName,
-            createdAt: serverTimestamp(),
-            comment: 0,
-          });
-          post.then((id) => {
-            addDoc(collection(db, "likes"), {
-              postId: id.id,
-              likes: 0,
-              likers: [],
+        console.log(user);
+        try {
+          await getDownloadURL(uploadImage.snapshot.ref).then((url) => {
+            const post = addDoc(postCollection, {
+              shareImage: shareImage == "" ? "" : url,
+              shareVideo,
+              postText,
+              postTo,
+              userId: user?.uid,
+              createdAt: serverTimestamp(),
+              comment: 0,
+              userPhoto: user?.profilePhoto,
+              userName: user?.displayName,
+            });
+            post.then((id) => {
+              addDoc(collection(db, "likes"), {
+                postId: id.id,
+                likes: 0,
+                likers: [],
+              });
             });
           });
-        });
+        } catch (error) {
+          console.log(error);
+        }
       }
     );
 
@@ -89,7 +94,7 @@ const CreatePostModal = ({ setIsModal, setProgress }) => {
           <div>
             <p className="flex">
               <img
-                src={user?.photoURL}
+                src={user?.profilePhoto || defaultProfilePhoto}
                 alt="user_photo"
                 className="h-14 w-14 rounded-full object-cover "
               />

@@ -10,6 +10,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { addDoc, collection, doc, getDoc, updateDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { useSelector } from "react-redux";
+import defaultProfilePhoto from "../media/images/user.jpg";
 
 const EditPost = ({ setIsEditSectionOpen, editPostId, getPost }) => {
   const [postText, setPostText] = useState(getPost.postText);
@@ -25,35 +26,59 @@ const EditPost = ({ setIsEditSectionOpen, editPostId, getPost }) => {
   const { users } = useSelector((store) => store.users);
   const user = users.filter((user) => user?.uid == USER?.uid)[0];
 
-  const handleEditPost = () => {
+  // const handleEditPost = async () => {
+  // const postRef = doc(db, "posts", editPostId);
+  // const storageRef = ref(storage, `images/${shareImage.name}`);
+
+  // if (shareImage !== getPost?.shareImage) {
+  // const uploadImage = uploadBytesResumable(storageRef, shareImage);
+  // uploadImage.on(
+  // "state_changed",
+  // (snapshot) => {
+  // const progress = Math.round(
+  // (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+  // );
+  // },
+  // (error) => console.log(error),
+  // async () => {
+  // const url = await getDownloadURL(uploadImage.snapshot.ref);
+  // await updateDoc(postRef, {
+  // shareImage: url,
+  // shareVideo,
+  // postText,
+  // postTo,
+  // });
+  // }
+  // );
+  // }
+
+  const handleEditPost = async () => {
     const postRef = doc(db, "posts", editPostId);
-    const storageRef = ref(storage, `images/${shareImage.name}`);
-    const uploadImage = uploadBytesResumable(storageRef, shareImage);
-    uploadImage.on(
-      "state_changed",
-      (snapshot) => {
-        const progress = Math.round(
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-        );
-      },
-      (error) => console.log(error),
-      async () => {
-        await getDownloadURL(uploadImage.snapshot.ref).then((url) => {
-          updateDoc(postRef, {
-            shareImage: shareImage == "" ? "" : url,
-            shareVideo,
-            postText,
-            postTo,
-            userEmail: user.email,
-            userId: user.uid,
-            userPhoto: user.photoURL,
-            userName: user.displayName,
-          });
-        });
-      }
-    );
+    if (typeof shareImage === "object") {
+      const storageRef = ref(storage, `images/${shareImage.name}`);
+
+      const uploadImage = uploadBytesResumable(storageRef, shareImage);
+      const snapshot = await uploadImage;
+      const url = await getDownloadURL(snapshot.ref);
+
+      // Update the Firestore document with the image URL
+      updateDoc(postRef, {
+        shareImage: url,
+        shareVideo,
+        postText,
+        postTo,
+      });
+    } else if (typeof shareImage === "string") {
+      await updateDoc(postRef, {
+        shareImage: getPost?.shareImage,
+        shareVideo,
+        postText,
+        postTo,
+      });
+    }
     setIsEditSectionOpen(false);
   };
+
   return (
     <div
       className=" h-screen w-screen 
@@ -69,9 +94,9 @@ const EditPost = ({ setIsEditSectionOpen, editPostId, getPost }) => {
           <div>
             <p className="flex">
               <img
-                src={user.photoURL}
+                src={user.profilePhoto || defaultProfilePhoto}
                 alt="user_photo"
-                className="h-14 w-14 rounded-full object-cover "
+                className="h-12 w-12 rounded-full object-cover "
               />
               <span className="flex flex-col ">
                 <span className="font-semibold text-lg ml-2 ">

@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { auth, db } from "../config/firebase";
 import { useSelector } from "react-redux";
 import { collection, doc, onSnapshot, updateDoc } from "firebase/firestore";
+import defaultProfilePhoto from "../media/images/user.jpg";
 
 const SinglePeople = ({ user }) => {
   const [followList, setFollowList] = useState([]);
@@ -55,7 +56,11 @@ const SinglePeople = ({ user }) => {
  items-start gap-2 hover:shadow-xl transition duration-150"
     >
       <Link to={`/profile/${user?.uid}`}>
-        <img src={user.photoURL} alt="user photo" className="rounded-lg" />
+        <img
+          src={user.profilePhoto || defaultProfilePhoto}
+          alt="user photo"
+          className="rounded-lg max-w-[120px]"
+        />
       </Link>
       <div className="flex items-start justify-between w-full">
         <div>

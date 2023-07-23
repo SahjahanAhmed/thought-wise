@@ -1,8 +1,6 @@
 import React, { useState } from "react";
-import { MdVerified } from "react-icons/md";
-import { AiOutlinePlus } from "react-icons/ai";
 import { useSelector } from "react-redux";
-import { Route, Routes, useParams } from "react-router";
+import { useParams } from "react-router";
 import { Link } from "react-router-dom";
 import Post from "../components/Post";
 import SinglePeople from "../components/SinglePeople";
@@ -12,21 +10,21 @@ const Suggested = ({ searchModal, setSearchModal }) => {
   const [state, setState] = useState(suggestion);
   const { users } = useSelector((store) => store.users);
   const { posts } = useSelector((store) => store.posts);
-  const { likes } = useSelector((store) => store.likes);
+  const { likes } = useSelector((store) => store?.likes);
   const soretedUsers = users
-    .map((user) => ({
+    ?.map((user) => ({
       ...user,
       posts: posts.filter((post) => post.userId == user.uid),
     }))
     .sort((prev, next) => {
-      return next.posts.length - prev.posts.length;
+      return next?.posts?.length - prev?.posts?.length;
     });
-  const postsWithLike = posts.map((post) => ({
+  const postsWithLike = posts?.map((post) => ({
     ...post,
-    likes: likes.filter((like) => like.postId == post.id),
+    likes: likes?.filter((like) => like.postId == post.id),
   }));
   const sortedPosts = postsWithLike.sort((prev, next) => {
-    return next.likes[0].likes - prev.likes[0].likes;
+    return next.likes[0]?.likes - prev?.likes[0]?.likes;
   });
   const suggetionList = suggestion === "people" ? soretedUsers : sortedPosts;
   return (
@@ -62,12 +60,12 @@ const Suggested = ({ searchModal, setSearchModal }) => {
         <div className="max-w-[600px] overflow-y-scroll scrollbar-none border-2 mx-auto shadow-mg rounded-lg p-2 mt-10 flex flex-col gap-4 items-start">
           {suggetionList &&
             suggestion === "people" &&
-            suggetionList.slice(0, 10).map((suggestion) => {
+            suggetionList.slice(0, 10)?.map((suggestion) => {
               return <SinglePeople user={suggestion} />;
             })}
           {suggetionList &&
             suggestion === "thoughts" &&
-            suggetionList.slice(0, 10).map((suggestion) => {
+            suggetionList.slice(0, 10)?.map((suggestion) => {
               return <Post post={suggestion} />;
             })}
         </div>
